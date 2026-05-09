@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<style>*{margin:0;padding:0;}body{width:512px;height:512px;overflow:hidden;background:#000;}</style>
+</head>
+<body>
+<canvas id="c" width="512" height="512"></canvas>
+<img id="bg" src="/campagne.jpg" style="display:none"/>
+<script>
+const c = document.getElementById("c");
+const ctx = c.getContext("2d");
+const img = document.getElementById("bg");
+
+img.onload = function() {
+  // Photo de fond avec coins arrondis
+  ctx.save();
+  ctx.beginPath();
+  roundRect(ctx, 0, 0, 512, 512, 90);
+  ctx.clip();
+  ctx.drawImage(img, 0, 0, 512, 512);
+  
+  // Overlay léger en haut, fort en bas
+  const overlay = ctx.createLinearGradient(0,0,0,512);
+  overlay.addColorStop(0,   "rgba(8,28,16,0.15)");
+  overlay.addColorStop(0.5, "rgba(8,28,16,0.40)");
+  overlay.addColorStop(0.72,"rgba(8,28,16,0.88)");
+  overlay.addColorStop(1,   "rgba(5,15,8,0.98)");
+  ctx.fillStyle = overlay;
+  ctx.fillRect(0,0,512,512);
+  ctx.restore();
+
+  // Ligne dorée séparatrice
+  const lineG = ctx.createLinearGradient(40,0,472,0);
+  lineG.addColorStop(0,"rgba(246,201,14,0)");
+  lineG.addColorStop(0.25,"rgba(246,201,14,0.8)");
+  lineG.addColorStop(0.75,"rgba(246,201,14,0.8)");
+  lineG.addColorStop(1,"rgba(246,201,14,0)");
+  ctx.fillStyle = lineG;
+  ctx.fillRect(40, 365, 432, 2);
+
+  // Texte TerreFrance grand et propre
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 62px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.fillText("TerreFrance", 256, 438);
+
+  // Sous-texte élégant
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = "rgba(183,228,199,0.92)";
+  ctx.font = "italic 19px Georgia, serif";
+  ctx.fillText("Du producteur à votre table", 256, 478);
+  ctx.shadowBlur = 0;
+
+  // Petits points décoratifs
+  ctx.fillStyle = "rgba(82,183,136,0.6)";
+  ctx.beginPath(); ctx.arc(80, 375, 3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(432, 375, 3, 0, Math.PI*2); ctx.fill();
+
+  setTimeout(()=>{
+    const a = document.createElement("a");
+    a.download = "icon-512.png";
+    a.href = c.toDataURL("image/png");
+    document.body.appendChild(a);
+    a.click();
+    document.body.innerHTML += "<p style='color:white;padding:10px;font-family:sans-serif'>✅ Téléchargé !</p>";
+  }, 500);
+};
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>

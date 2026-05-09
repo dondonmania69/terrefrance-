@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<style>*{margin:0;padding:0;}body{width:1024px;height:500px;overflow:hidden;background:#000;}</style>
+</head>
+<body>
+<canvas id="c" width="1024" height="500"></canvas>
+<img id="bg"    src="/campagne.jpg" style="display:none"/>
+<img id="fruit" src="/fraises.jpg"  style="display:none"/>
+<script>
+const c     = document.getElementById("c");
+const ctx   = c.getContext("2d");
+const bg    = document.getElementById("bg");
+const fruit = document.getElementById("fruit");
+let loaded  = 0;
+
+function tryDraw(){ if(++loaded>=2) draw(); }
+bg.onload=tryDraw; fruit.onload=tryDraw;
+bg.onerror=tryDraw; fruit.onerror=tryDraw;
+
+function draw(){
+  // Photo plein fond étirée
+  ctx.drawImage(bg, 0, 0, 1024, 500);
+
+  // Overlay dégradé gauche naturel
+  const grad = ctx.createLinearGradient(0,0,1024,0);
+  grad.addColorStop(0,   "rgba(8,30,18,0.96)");
+  grad.addColorStop(0.45,"rgba(8,30,18,0.82)");
+  grad.addColorStop(0.7, "rgba(8,30,18,0.45)");
+  grad.addColorStop(1,   "rgba(8,30,18,0.10)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,1024,500);
+
+  // Photo produit vignette ronde droite
+  if(fruit.complete && fruit.naturalWidth>0){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(860,250,155,0,Math.PI*2);
+    ctx.clip();
+    ctx.drawImage(fruit,705,95,310,310);
+    ctx.restore();
+    // Bordure dorée naturelle
+    ctx.strokeStyle = "rgba(82,183,136,0.7)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(860,250,155,0,Math.PI*2);
+    ctx.stroke();
+    // Halo
+    ctx.strokeStyle = "rgba(82,183,136,0.2)";
+    ctx.lineWidth = 15;
+    ctx.beginPath();
+    ctx.arc(860,250,163,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  // Badge feuille haut gauche
+  ctx.fillStyle = "rgba(82,183,136,0.2)";
+  ctx.beginPath(); ctx.arc(75,72,45,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = "rgba(82,183,136,0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(75,72,45,0,Math.PI*2); ctx.stroke();
+  ctx.font = "36px serif";
+  ctx.textAlign = "center";
+  ctx.fillText("🌿", 75, 86);
+
+  // Titre principal
+  ctx.fillStyle = "#FFFFFF";
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowBlur = 12;
+  ctx.font = "bold 78px Georgia, serif";
+  ctx.textAlign = "left";
+  ctx.fillText("TerreFrance", 55, 195);
+  ctx.shadowBlur = 0;
+
+  // Ligne verte décorative
+  const lineGrad = ctx.createLinearGradient(55,0,380,0);
+  lineGrad.addColorStop(0,"#52B788");
+  lineGrad.addColorStop(1,"rgba(82,183,136,0)");
+  ctx.fillStyle = lineGrad;
+  ctx.fillRect(55, 212, 340, 3);
+
+  // Sous-titre
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "italic 26px Georgia, serif";
+  ctx.fillText("Du producteur à votre table", 55, 258);
+
+  // Description
+  ctx.fillStyle = "rgba(183,228,199,0.9)";
+  ctx.font = "17px Arial, sans-serif";
+  ctx.fillText("Trouvez vos producteurs locaux, marchés et artisans", 55, 296);
+  ctx.fillText("en circuit court, partout en France.", 55, 318);
+
+  // Tags naturels
+  const tags = [
+    {t:"🥬 Circuit court",      c:"rgba(46,125,50,0.75)"},
+    {t:"🗺️ Géolocalisé",        c:"rgba(21,101,192,0.75)"},
+    {t:"🌾 1 200+ producteurs", c:"rgba(100,90,20,0.75)"},
+    {t:"✨ Premium sans pub",   c:"rgba(106,27,154,0.75)"},
+  ];
+  tags.forEach((tag,i)=>{
+    const x = 55 + (i%2)*270;
+    const y = 348 + Math.floor(i/2)*42;
+    ctx.fillStyle = tag.c;
+    ctx.beginPath(); ctx.roundRect(x,y,255,32,16); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 14px Arial, sans-serif";
+    ctx.fillText(tag.t, x+12, y+21);
+  });
+
+  // Badge Google Play
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.beginPath(); ctx.roundRect(55,448,235,38,10); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 15px Arial, sans-serif";
+  ctx.fillText("▶  Disponible sur Google Play", 70, 472);
+
+  // Télécharger
+  setTimeout(()=>{
+    const a = document.createElement("a");
+    a.download = "banner-1024x500.png";
+    a.href = c.toDataURL("image/png");
+    document.body.appendChild(a);
+    a.click();
+    document.body.innerHTML += "<p style='color:white;padding:10px'>✅ Téléchargement lancé !</p>";
+  }, 600);
+}
+</script>
+</body>
+</html>
